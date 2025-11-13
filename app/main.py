@@ -5,6 +5,10 @@ from pydantic import BaseModel
 from random import randrange
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from . import models
+from database import engine
+
+models.Base
 
 app = FastAPI()
 
@@ -50,12 +54,14 @@ def createNewPost(post: Post):
     cursor.execute(""" INSERT INTO posts (title,content,published) VALUES (%s,%s,%s) 
                    RETURNING * """,(post.title,post.content,post.published))
     new_post = cursor.fetchone()
+    conn.commit()
     return {"data":new_post} 
 
 @app.get("/get-post/{id}")
 def getPostById (id: int ):
     print(id)
-    post  = findPost(id)
+    cursor.execute(""" SELECT * FROM posts WHERE id = %s """,(id,))
+    post  = cursor.fetchone()
     if not  post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"post with id {id} not found")
     return {"data": post}
@@ -63,17 +69,20 @@ def getPostById (id: int ):
 
 @app.delete("/delete-post/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def deletePostById(id: int):
-    post_index = findPostIndex(id)
-    if post_index == None:
+   cursor.execute(""" DELETE FROM posts WHERE id = %s RETURNING * """,(id,))
+   post = cursor.fetchone()
+   conn.commit()
+   if post == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"post with id {id} not found")
-    my_posts.pop(post_index)
-    return {"message": f"Deleted post with id {id}"}
+    
+   return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @app.put("/update-post/{id}")
 def updatePostById(id : int, newPost: Post):
-    post = findPost(id)
+    cursor.execute(""" UPDATE posts SET title = %s , content = %s , published = %s WHERE id = %s RETURNING * """,(newPost.title,newPost.content,newPost.published,id))
+    post = cursor.fetchone()
+    conn.commit()
     if  post == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"post with id {id} not found")
-    post.update(newPost)
     return {"message": post}
