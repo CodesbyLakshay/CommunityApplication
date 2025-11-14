@@ -1,11 +1,14 @@
-from database import Base
-from sqlalchemy import column,Index,Integer,String, Text, DateTime,func
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+import datetime
+
+from .database import Base
+from sqlalchemy import Integer, String, Boolean, DateTime, func, text
+from sqlalchemy.orm import  Mapped, mapped_column
 
 class Post(Base):
     __tablename__ = "posts"
 
-    id: Mapped[Integer] = mapped_column(Integer,primary_key=True,index=True)
-    title: Mapped[String] = mapped_column(String,nullable=False)
-    content: Mapped[String] = mapped_column(String,nullable=False)
-    published: Mapped[bool] = mapped_column(bool,default=True)
+    id: Mapped[int] = mapped_column(Integer,primary_key=True,index=True)
+    title: Mapped[str] = mapped_column(String,nullable=False)
+    content: Mapped[str] = mapped_column(String,nullable=False)
+    published: Mapped[bool] = mapped_column(Boolean,default=True,server_default=text("true"))
+    created_at: Mapped[datetime.timezone] = mapped_column(DateTime,nullable=False)
