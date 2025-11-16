@@ -1,8 +1,9 @@
 import datetime
 
 from .database import Base
-from sqlalchemy import Integer, String, Boolean, DateTime, func, text
+from sqlalchemy import Integer, String, Boolean, DateTime, text
 from sqlalchemy.orm import  Mapped, mapped_column
+from sqlalchemy.sql import func
 
 class Post(Base):
     __tablename__ = "posts"
@@ -11,4 +12,4 @@ class Post(Base):
     title: Mapped[str] = mapped_column(String,nullable=False)
     content: Mapped[str] = mapped_column(String,nullable=False)
     published: Mapped[bool] = mapped_column(Boolean,default=True,server_default=text("true"))
-    created_at: Mapped[datetime.timezone] = mapped_column(DateTime,nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True),server_default=func.now(),nullable=False,)
