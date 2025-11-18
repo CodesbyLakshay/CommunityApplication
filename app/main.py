@@ -1,14 +1,14 @@
 from contextlib import asynccontextmanager
-
 from fastapi import FastAPI , Response , status , HTTPException
 from fastapi.params import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from pwdlib import PasswordHash
 from .models import Post
 from .database import  create_db, get_async_session
 from . import models, schemas
 
+pwd_context = PasswordHash.recommended()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -41,7 +41,7 @@ async def getPostbyId(id: int, session: AsyncSession = Depends(get_async_session
     post = result.scalars().first()
     if not post:
         raise HTTPException(status_code=404, detail=f"No Post found with id : {id}")
-    return {"post":post}
+    return schemas.PostResponse.model_validate(post)
 
 
 @app.put("/update-post/{id}")
@@ -65,4 +65,14 @@ async def deletePostById(id: int , sessions: AsyncSession = Depends(get_async_se
     await sessions.delete(post)
     await sessions.commit()
     return {"deleted":True}
+
+
+@app.post("/create-user",status_code=201)
+async def create_user(user : schemas.UserCreate, session: AsyncSession = Depends(get_async_session)):
+    new_user = models.User(email=user.email, password=pwd_context.hash(user.password))
+    session.add(new_user)
+    await session.commit()
+    await session.refresh(new_user)
+    return schemas.UserResponse.model_validate(new_user)
+
 
