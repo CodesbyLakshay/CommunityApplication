@@ -23,5 +23,9 @@ class UserResponse(BaseModel):
     email:EmailStr
     created_At: datetime
 
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
 
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)

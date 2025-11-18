@@ -17,8 +17,7 @@ async def create_user(user : schemas.UserCreate, session: AsyncSession = Depends
 
 @router.get("/get-user/{id}" , response_model=schemas.UserResponse)
 async def get_user(id: int,session: AsyncSession = Depends(get_async_session)):
-    result = await session.execute(select(User).where(User.id == id))
-    user = result.scalars().first()
+    user = await session.scalar(select(User).where(User.id == id))
     if not user:
         raise HTTPException(status_code=404, detail=f"No User found with id : {id}")
     return user
