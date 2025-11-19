@@ -7,21 +7,31 @@ class PostCreate(BaseModel):
     title: str
     content: str
 
+class UserResponse(BaseModel):
+    id: int
+    email:EmailStr
+    created_At: datetime
+
 class PostResponse(BaseModel):
     id: int
     title: str
     content: str
     published: bool
     created_at: datetime
+    user_id: int
+
+class PostResponseUser(BaseModel):
+    id: int
+    title: str
+    content: str
+    published: bool
+    created_at: datetime
+    user_id: int
+    user: UserResponse
 
 class UserCreate(BaseModel):
     email:EmailStr
     password:str
-
-class UserResponse(BaseModel):
-    id: int
-    email:EmailStr
-    created_At: datetime
 
 class UserLogin(BaseModel):
     email: EmailStr
