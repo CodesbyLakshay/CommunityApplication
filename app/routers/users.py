@@ -1,4 +1,4 @@
-from .. import models , schemas , utils
+from .. import models , schemas , utils , oauth2
 from fastapi import Depends, HTTPException , status ,Response ,APIRouter
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -16,7 +16,7 @@ async def create_user(user : schemas.UserCreate, session: AsyncSession = Depends
 
 
 @router.get("/get-user/{id}" , response_model=schemas.UserResponse)
-async def get_user(id: int,session: AsyncSession = Depends(get_async_session)):
+async def get_user(id: int,session: AsyncSession = Depends(get_async_session),user_id : str = Depends(oauth2.get_current_user)):
     user = await session.scalar(select(User).where(User.id == id))
     if not user:
         raise HTTPException(status_code=404, detail=f"No User found with id : {id}")

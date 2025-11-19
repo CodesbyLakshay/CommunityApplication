@@ -8,7 +8,7 @@ from ..models import User
 
 router = APIRouter()
 
-@router.post("/login")
+@router.post("/login" , response_model=schemas.Token)
 async def login(user_credentials: OAuth2PasswordRequestForm = Depends() ,session: AsyncSession = Depends(get_async_session)):
     user = await session.scalar(select(User).where(User.email == user_credentials.username))
     if not user:
