@@ -1,9 +1,7 @@
 import datetime
-
-from sqlalchemy.testing.pickleable import User
-
+from typing import List
 from .database import Base
-from sqlalchemy import Integer, String, Boolean, DateTime, text
+from sqlalchemy import Integer, String, Boolean, DateTime, text, Nullable
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
 from sqlalchemy.sql import func
@@ -17,7 +15,8 @@ class Post(Base):
     published: Mapped[bool] = mapped_column(Boolean,default=True,server_default=text("true"))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True),server_default=func.now(),nullable=False,)
     user_id: Mapped[int] = mapped_column(Integer,ForeignKey("users.id", ondelete="CASCADE"),nullable=False,)
-    user : Mapped[User] = relationship("User")
+    user : Mapped["User"] = relationship("User")
+    vote: Mapped[List["Vote"]] = relationship("Vote")
 
 class User(Base):
     __tablename__ = "users"
@@ -26,3 +25,9 @@ class User(Base):
     email: Mapped[str] = mapped_column(String,nullable=False,unique=True)
     password:Mapped[str] = mapped_column(String,nullable=False)
     created_At:Mapped[datetime] = mapped_column(DateTime(timezone=True),server_default=func.now(),nullable=False,)
+
+class Vote(Base):
+    __tablename__ = "votes"
+
+    post_id: Mapped[int] = mapped_column(Integer,ForeignKey("posts.id",ondelete="CASCADE"),primary_key=True , nullable=False)
+    user_id : Mapped[int] = mapped_column(Integer , ForeignKey("users.id",ondelete="CASCADE"),primary_key=True,nullable=False)
