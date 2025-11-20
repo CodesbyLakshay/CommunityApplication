@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from .database import  create_db
 from .routers import posts,users,auth
+from.config import settings
 
 
 @asynccontextmanager

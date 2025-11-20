@@ -5,13 +5,13 @@ from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import select
 from ..database import get_async_session
 from ..models import Post
-from typing import List
+from typing import List, Optional
 
 router = APIRouter()
 
 @router.get("/all-posts", response_model=List[schemas.PostResponseUser])
-async def root( session:Session = Depends(get_async_session), user_id : str = Depends(oauth2.get_current_user)):
-    posts = await session.scalars(select(Post).options(joinedload(Post.user)))
+async def root( session:Session = Depends(get_async_session), user_id : str = Depends(oauth2.get_current_user),limit:int = 10 , skip:int = 0,search:Optional[str] = ""):
+    posts = await session.scalars(select(Post).filter(Post.title.contains(search)).limit(limit).offset(skip).options(joinedload(Post.user)))
     return posts
 
 

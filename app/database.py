@@ -2,9 +2,10 @@ from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.sql.schema import MetaData
+from .config import settings
 
 engine = create_async_engine(
-    url='postgresql+asyncpg://postgres:fastapi@localhost:5432/fastapi',
+    url=f'postgresql+asyncpg://{settings.db_name}:{settings.db_username}@{settings.db_hostname}:{settings.db_port}/{settings.db_password}',
     echo=True
 )
 
