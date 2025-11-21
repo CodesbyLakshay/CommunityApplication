@@ -11,7 +11,7 @@ router = APIRouter()
 
 @router.get("/all-posts", response_model=List[schemas.PostResponseUser])
 async def root( session:Session = Depends(get_async_session), user_id : str = Depends(oauth2.get_current_user),limit:int = 10 , skip:int = 0,search:Optional[str] = ""):
-    posts = await session.scalars(select(Post).filter(Post.title.contains(search)).limit(limit).offset(skip).options(joinedload(Post.user),selectinload(Post.vote)))
+    posts = await session.scalars(select(Post).filter(Post.title.contains(search)).limit(limit).offset(skip).options(joinedload(Post.user)))
     return posts
 
 

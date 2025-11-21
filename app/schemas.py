@@ -31,7 +31,6 @@ class PostResponseUser(BaseModel):
     created_at: datetime
     user_id: int
     user: UserResponse
-    vote: List[UserVote]
 
 class UserCreate(BaseModel):
     email:EmailStr
