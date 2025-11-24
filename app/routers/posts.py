@@ -2,17 +2,20 @@ from .. import models, schemas, oauth2
 from fastapi import Depends, HTTPException  ,APIRouter
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import select
+from sqlalchemy import select , func
 from ..database import get_async_session
-from ..models import Post
+from ..models import Post ,Vote
 from typing import List, Optional
 
 router = APIRouter()
 
-@router.get("/all-posts", response_model=List[schemas.PostResponseUser])
-async def root( session:Session = Depends(get_async_session), user_id : str = Depends(oauth2.get_current_user),limit:int = 10 , skip:int = 0,search:Optional[str] = ""):
-    posts = await session.scalars(select(Post).filter(Post.title.contains(search)).limit(limit).offset(skip).options(joinedload(Post.user)))
-    return posts
+@router.get("/all-posts",response_model=List[schemas.PostVoteResponse])
+async def root( session: AsyncSession = Depends(get_async_session), user_id : str = Depends(oauth2.get_current_user),limit:int = 10 , skip:int = 0,search:Optional[str] = ""):
+
+    votes= (await session.execute(select(Post,func.count(Vote.post_id).label("votes")).outerjoin(Vote,Post.id == Vote.post_id).group_by(Post.id))).mappings().all()
+
+
+    return votes
 
 
 @router.post("/new-post" , response_model=schemas.PostResponse)

@@ -19,6 +19,11 @@ class PostResponse(BaseModel):
     created_at: datetime
     user_id: int
 
+class PostVoteResponse(BaseModel):
+    Post: PostResponse
+    votes:int
+
+
 class UserVote(BaseModel):
     user_id: int
     post_id: int

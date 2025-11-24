@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends , HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select , and_
 from ..database import get_async_session
 from .. import schemas,oauth2
-from ..models import Vote
+from ..models import Vote ,Post
 
 router = APIRouter()
 
@@ -11,7 +11,11 @@ router = APIRouter()
 @router.post("/",status_code=status.HTTP_201_CREATED)
 async def vote(user_vote: schemas.Vote , session: AsyncSession = Depends(get_async_session) , user_id: str = Depends(oauth2.get_current_user)):
 
-    vote = await session.scalar(select(Vote).filter(Vote.user_id == int(user_id.id)) , user_vote.post_id == Vote.post_id)
+    post = await session.scalar(select(Post).where(Post.id == user_vote.post_id))
+    if not post:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"No Post Found with id : {user_vote.post_id} ")
+
+    vote = await session.scalar(select(Vote).filter(and_(Vote.user_id == int(user_id.id) , user_vote.post_id == Vote.post_id)))
     if user_vote.vote_dir == 1:
         if vote:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail=f" user: {user_id.id} has already voted on post : {user_vote.post_id}")
