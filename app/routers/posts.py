@@ -12,9 +12,7 @@ router = APIRouter()
 @router.get("/all-posts",response_model=List[schemas.PostVoteResponse])
 async def root( session: AsyncSession = Depends(get_async_session), user_id : str = Depends(oauth2.get_current_user),limit:int = 10 , skip:int = 0,search:Optional[str] = ""):
 
-    votes= (await session.execute(select(Post,func.count(Vote.post_id).label("votes")).outerjoin(Vote,Post.id == Vote.post_id).group_by(Post.id))).mappings().all()
-
-
+    votes= (await session.execute(select(Post,func.count(Vote.post_id).label("votes")).outerjoin(Vote,Post.id == Vote.post_id).filter(Post.title.contains(search)).limit(limit).offset(skip).group_by(Post.id))).mappings().all()
     return votes
 
 
@@ -28,9 +26,9 @@ async def create_new_post(
     return new_post
 
 
-@router.get("/get-post/{id}",response_model=schemas.PostResponseUser)
+@router.get("/get-post/{id}",response_model=schemas.PostVoteResponse)
 async def getPostbyId(id: int, session: AsyncSession = Depends(get_async_session),user_id : str = Depends(oauth2.get_current_user)):
-    post = await session.scalar(select(Post).options(joinedload(Post.user)).where(Post.id == id))
+    post = (await session.execute(select(Post,func.count(Vote.post_id).label("votes")).outerjoin(Vote,Post.id == Vote.post_id).where(Post.id == id).group_by(Post.id))).mappings().first()
     if not post:
         raise HTTPException(status_code=404, detail=f"No Post found with id : {id}")
     return post
