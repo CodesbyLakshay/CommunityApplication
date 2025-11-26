@@ -23,6 +23,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(String,nullable=False,unique=True)
     password:Mapped[str] = mapped_column(String,nullable=False)
     created_At:Mapped[datetime] = mapped_column(DateTime(timezone=True),server_default=func.now(),nullable=False,)
+    phone_number : Mapped[int] = mapped_column(Integer ,nullable=False,unique=True)
 
 class Vote(Base):
     __tablename__ = "votes"
