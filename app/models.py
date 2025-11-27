@@ -30,3 +30,12 @@ class Vote(Base):
 
     post_id: Mapped[int] = mapped_column(Integer,ForeignKey("posts.id",ondelete="CASCADE"),primary_key=True , nullable=False)
     user_id : Mapped[int] = mapped_column(Integer , ForeignKey("users.id",ondelete="CASCADE"),primary_key=True,nullable=False)
+
+
+class Comment(Base):
+    __tablename__ = "comments"
+
+    id : Mapped[int] = mapped_column(Integer, primary_key=True , nullable=False)
+    post_id : Mapped[int] = mapped_column(Integer , ForeignKey("posts.id",ondelete="CASCADE"),nullable=False)
+    user_id : Mapped[int] = mapped_column(Integer , ForeignKey("users.id",ondelete="CASCADE"),nullable=False)
+    comment : Mapped[str] = mapped_column(String,nullable=False)
