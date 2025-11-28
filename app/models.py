@@ -39,3 +39,5 @@ class Comment(Base):
     post_id : Mapped[int] = mapped_column(Integer , ForeignKey("posts.id",ondelete="CASCADE"),nullable=False)
     user_id : Mapped[int] = mapped_column(Integer , ForeignKey("users.id",ondelete="CASCADE"),nullable=False)
     comment : Mapped[str] = mapped_column(String,nullable=False)
+    created_At: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False, )
+    updated_At: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False, )
